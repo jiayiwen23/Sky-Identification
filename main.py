@@ -18,7 +18,7 @@ def identify_sky_pixels(image_path, target_size):
     lap_threshold = cv2.adaptiveThreshold(lap, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, blockSize=15, C=3)
 
     # Further refine the mask using morphological operations with a variable kernel size
-    kernel_size = (int(img.shape[0] / 30), int(img.shape[1] / 30))  # Adjust the divisor as needed
+    kernel_size = (25, 19)
     kernel_gradient = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
     mask = cv2.morphologyEx(lap_threshold, cv2.MORPH_ERODE, kernel_gradient)
 
@@ -37,4 +37,4 @@ def identify_sky_pixels(image_path, target_size):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-identify_sky_pixels('sample picture/5.jpg', target_size=(500, 300))
+identify_sky_pixels('sample picture/13.jpg', target_size=(500, 300))
