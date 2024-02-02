@@ -8,15 +8,19 @@ def identify_sky_pixels(image_path, target_size):
     # Convert the image to grayscale
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    # Apply Median Blur
+    img_blurred = cv2.medianBlur(img_gray, 5)
+
     # Apply Laplacian operator
-    lap = cv2.Laplacian(img_gray, cv2.CV_8U)
+    lap = cv2.Laplacian(img_blurred, cv2.CV_8U)
+    
+    # Adaptive Thresholding
+    lap_threshold = cv2.adaptiveThreshold(lap, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, blockSize=15, C=3)
 
-    # Create a gradient mask based on Laplacian values
-    gradient_mask = (lap < 7).astype(np.uint8)
-
-    # Further refine the mask using morphological operations
-    kernel_gradient = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 3))
-    mask = cv2.morphologyEx(gradient_mask, cv2.MORPH_ERODE, kernel_gradient)
+    # Further refine the mask using morphological operations with a variable kernel size
+    kernel_size = (int(img.shape[0] / 30), int(img.shape[1] / 30))  # Adjust the divisor as needed
+    kernel_gradient = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
+    mask = cv2.morphologyEx(lap_threshold, cv2.MORPH_ERODE, kernel_gradient)
 
     # Bitwise AND the original image with the refined mask
     result = cv2.bitwise_and(img, img, mask=mask)
@@ -33,4 +37,4 @@ def identify_sky_pixels(image_path, target_size):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-identify_sky_pixels('sample picture/13.jpg', target_size=(500, 300))
+identify_sky_pixels('sample picture/5.jpg', target_size=(500, 300))
