@@ -1,12 +1,13 @@
 import cv2
 import numpy as np
+import gradio as gr
 
-def identify_sky_pixels(image_path, target_size):
-    # Load the image
-    img = cv2.imread(image_path)
+def identify_sky_pixels(image):
+    # Convert the Gradio image to a NumPy array
+    img_np = np.array(image)
 
-    # Convert the image to grayscale
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Convert the image to grayscale using a simple average method
+    img_gray = np.mean(img_np, axis=-1).astype(np.uint8)
 
     # Apply Median Blur
     img_blurred = cv2.medianBlur(img_gray, 5)
@@ -23,18 +24,20 @@ def identify_sky_pixels(image_path, target_size):
     mask = cv2.morphologyEx(lap_threshold, cv2.MORPH_ERODE, kernel_gradient)
 
     # Bitwise AND the original image with the refined mask
-    result = cv2.bitwise_and(img, img, mask=mask)
+    result = cv2.bitwise_and(img_np, img_np, mask=mask)
 
-    # Resize the original image and result
-    img_resized = cv2.resize(img, target_size)
-    result_resized = cv2.resize(result, target_size)
+    # Return the processed image
+    return result
 
-    # Horizontally stack the resized original image and result
-    combined_image = np.hstack((img_resized, result_resized))
 
-    # Display the combined image
-    cv2.imshow('Original Image vs. Sky Pixels', combined_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+# Create a Gradio interface
+iface = gr.Interface(
+    fn=identify_sky_pixels,
+    inputs=gr.Image(type="numpy"),
+    outputs=gr.Image(type="numpy"),
+    live=True,
+    title="Sky Detection App",
+    description="Upload an image to identify sky pixels."
+)
 
-identify_sky_pixels('sample picture/1.jpg', target_size=(500, 300))
+iface.launch(share=True)
