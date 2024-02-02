@@ -1,27 +1,25 @@
 import cv2
 import numpy as np
 
-def identify_sky_pixels(image_path, target_size=(800, 400)):
+def identify_sky_pixels(image_path, target_size):
     # Load the image
     img = cv2.imread(image_path)
 
-    # Convert the image to the HSV color space
-    hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # Convert the image to grayscale
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Define lower and upper bounds for sky color in HSV
-    lower_sky = np.array([0, 40, 80])
-    upper_sky = np.array([180, 255, 255])
+    # Apply Laplacian operator
+    lap = cv2.Laplacian(img_gray, cv2.CV_8U)
 
-    # Threshold the image to get a binary mask of sky pixels
-    sky_mask = cv2.inRange(hsv_img, lower_sky, upper_sky)
+    # Create a gradient mask based on Laplacian values
+    gradient_mask = (lap < 7).astype(np.uint8)
 
-    # Apply morphological operations to clean up the mask
-    kernel = np.ones((5, 5), np.uint8)
-    sky_mask = cv2.morphologyEx(sky_mask, cv2.MORPH_OPEN, kernel)
-    sky_mask = cv2.morphologyEx(sky_mask, cv2.MORPH_CLOSE, kernel)
+    # Further refine the mask using morphological operations
+    kernel_gradient = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 3))
+    mask = cv2.morphologyEx(gradient_mask, cv2.MORPH_ERODE, kernel_gradient)
 
-    # Bitwise AND the original image with the sky mask
-    result = cv2.bitwise_and(img, img, mask=sky_mask)
+    # Bitwise AND the original image with the refined mask
+    result = cv2.bitwise_and(img, img, mask=mask)
 
     # Resize the original image and result
     img_resized = cv2.resize(img, target_size)
@@ -35,6 +33,4 @@ def identify_sky_pixels(image_path, target_size=(800, 400)):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-# Replace 'your_image_path.jpg' with the actual path to your image
-# Set the target_size to the desired size (e.g., (800, 400))
-identify_sky_pixels('sample picture/1.jpg', target_size=(500, 300))
+identify_sky_pixels('sample picture/13.jpg', target_size=(500, 300))
