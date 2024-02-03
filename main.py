@@ -4,6 +4,17 @@ import gradio as gr
 
 
 def identify_sky_pixels(image):
+    """
+    Identifies and highlights sky pixels in the input image.
+
+    Parameters:
+    - image (numpy.ndarray): The input image as a NumPy array.
+
+    Returns:
+    - numpy.ndarray or None: The processed image with highlighted sky pixels.
+      If the input image is empty or has incorrect shape, returns None.
+    """
+    
     # Check if the input image is empty or has incorrect shape
     if image is None or image.shape[0] == 0 or image.shape[1] == 0:
         return None
