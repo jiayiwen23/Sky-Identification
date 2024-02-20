@@ -1,6 +1,7 @@
 # Sky Identification
 Allow user to upload an image and highlight sky pixels.
-Demo: https://huggingface.co/spaces/Galii/sky
+Try out the demo: https://huggingface.co/spaces/Galii/sky
+<img width="416" alt="Picture1" src="https://github.com/jiayiwen23/Sky-Identification/assets/133088295/b9911fb1-d650-452f-b8af-12e7a303dc0e">
 
 ## Chosen Techniques and Rationale
 1. Grayscale Conversion
